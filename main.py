@@ -16,7 +16,10 @@ st.markdown("""<style>
             
             
             </style>
-            """)
+            """,unsafe_allow_html=True)
 
 st.markdown("<h1> GOOGLE PLAY STORE APPLICATON ANALYSE</h1>",unsafe_allow_html=True)
 
+
+
+# 
