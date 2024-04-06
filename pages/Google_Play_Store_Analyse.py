@@ -63,8 +63,13 @@ def highest_revenue (df_clean):
 
 df_clean = data_cleaning(df)
 
-
-
+@st.cache_data
+def highest_installs(df_clean):
+    df_clean.Installs = pd.to_numeric(df_clean.Installs.astype(str).str.replace(",",""))
+    df_installs =df_clean[["App","Installs"]]
+    df_installs = df_installs.sort_values(by="Installs",ascending=False)
+    df_installs["Installs"] = df_installs["Installs"].apply(lambda x: "+" + str(x) if x > 10000 else str(x))
+    return df_installs
 
 #STYLE PART
 st.markdown("""<style>
@@ -83,12 +88,13 @@ df_highest_rating = highest_rated_apps(df_clean)
 df_highest_size = highest_size_apps(df_clean)
 df_highest_reviews = highest_reviews_apps(df_clean)
 df_highest_revenue = highest_revenue(df_clean)
+df_app_installs = highest_installs(df_clean)
 
 col1,col2 = st.columns([0.6,0.45])
 
 
 with col1:
-    tab1,tab2,tab3,tab4 = st.tabs(["Highest Rated","Highest Size(MBs)","Highest Reviews","Highest Revenue"])
+    tab1,tab2,tab3,tab4,tab5 = st.tabs(["Highest Rated","Highest Size(MBs)","Highest Reviews","Highest Revenue","Installs"])
     with tab1:
         st.dataframe(df_highest_rating)
     with tab2:
@@ -97,3 +103,66 @@ with col1:
         st.dataframe(df_highest_reviews)
     with tab4:
         st.dataframe(df_highest_revenue)
+    
+    with tab5:
+        st.dataframe(df_app_installs)
+        
+
+#GRAPH ANALYSE
+#Content Rating Distrubtion
+
+@st.cache_data
+def content_rating(df_clean):
+    content_rating = df_clean.Content_Rating.value_counts()
+    content_rating_df = pd.DataFrame({'Content_Rating': content_rating.index, 'Count': content_rating.values})
+    fig = px.pie(
+        content_rating_df,
+        values='Count',
+        names='Content_Rating',
+        title='Content Rating Distribution',
+        labels=content_rating_df.index,
+        hole=0.6,
+        color_discrete_sequence=px.colors.sequential.Plasma
+        
+    )
+    fig.update_traces(textposition='inside', textinfo='percent+label')
+    fig.update_layout(
+        plot_bgcolor='rgba(0, 0, 0, 0)',  # Set plot background color to transparent
+        paper_bgcolor='rgb(0, 0, 0)',     # Set paper (the outer background) color to dark
+    )
+
+
+    return fig
+
+
+# Check Installs 
+
+@st.cache_data
+
+def install_distrubition(df_clean):
+    df_clean.Installs = pd.to_numeric(df_clean.Installs.astype(str).str.replace(",",""))
+    df_intalls =df_clean[["App","Installs"]].groupby("Installs").count()
+    df_intalls = df_intalls.sort_values(by="App",ascending=False)
+    df_intalls.index = pd.Series(df_intalls.index).apply(lambda x: "+" + str(x) if x >= 10000 else str(x))
+    fig =px.pie(
+        df_intalls,
+        values=df_intalls.App,
+        names=df_intalls.index,
+    )
+    fig.update_traces(textposition='inside', textinfo='percent+label')
+    fig.update_layout(
+        plot_bgcolor='rgba(0, 0, 0, 0)',  # Set plot background color to transparent
+        paper_bgcolor='rgb(0, 0, 0)',     # Set paper (the outer background) color to dark
+    )
+    return fig
+#Analyse category distrubtion
+@st.cache_data
+def category(df_clean):
+    df_clean.Category.nunique()
+    df_clean.shape
+    top_categories= df_clean.Category.value_counts()    
+    bar = px.bar(x=top_categories.index,y=top_categories.values,color_continuous_scale="Agsunset")    
+    
+with col2:
+    ...
+        
