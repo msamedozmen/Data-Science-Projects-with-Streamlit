@@ -1,0 +1,4 @@
+A,B
+Link1,"=HYPERLINK(""https://example1.com"", ""https://example1.com"")"
+Link2,"=HYPERLINK(""https://example2.com"", ""https://example2.com"")"
+Link3,"=HYPERLINK(""https://example3.com"", ""https://example3.com"")"
