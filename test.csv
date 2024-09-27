@@ -1,4 +1,34 @@
-A,B
-Link1,"=HYPERLINK(""https://example1.com"", ""https://example1.com"")"
-Link2,"=HYPERLINK(""https://example2.com"", ""https://example2.com"")"
-Link3,"=HYPERLINK(""https://example3.com"", ""https://example3.com"")"
+import time
+import threading
+
+import streamlit as st
+
+def expensive_process(update_func):
+    time.sleep(3)  # Simulate expensive operation
+    result = 123
+    update_func(result)  # Update the UI with the result
+
+def main():
+    if "disabled" not in st.session_state:
+        st.session_state.disabled = False
+    if "result" not in st.session_state:
+        st.session_state.result = None
+
+    def update_result(result):
+        st.session_state.result = result
+        st.session_state.disabled = False
+
+    text_wait = st.empty()
+    result_container = st.empty()
+
+    if st.button("Calculate", disabled=st.session_state.disabled):
+        st.session_state.disabled = True
+        text_wait.markdown("Running...")
+        thread = threading.Thread(target=expensive_process, args=(update_result,))
+        thread.start()
+
+    if st.session_state.result:
+        result_container.markdown(f"The result was {st.session_state.result}")
+
+if __name__ == "__main__":
+    main()

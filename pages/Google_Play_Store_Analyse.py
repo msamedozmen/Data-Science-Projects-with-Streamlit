@@ -157,7 +157,7 @@ def custom_tick_format(x):
 @st.cache_data
 def categories_with_highes_dowdloand(df_clean):
     # Convert 'Installs' column to numeric
-    df_clean['Installs'] = pd.to_numeric(df_clean['Installs'].str.replace('[^\d.]', ''), errors='coerce')
+    df_clean.Installs = pd.to_numeric(df_clean.Installs.astype(str).str.replace(",",""))
     
     top_categories_with_highes_dowload = df_clean.groupby("Category").agg({"Installs":pd.Series.sum})
     top_categories_with_highes_dowload.sort_values("Installs",ascending=False,inplace=True)
@@ -210,10 +210,9 @@ def free_vs_paid(df_clean):
     g_bar.update_layout(xaxis_title='Category',
                         yaxis_title='Number of Apps',
                         xaxis={'categoryorder':'total descending', "tickmode":'array' },
-                                 yaxis={'type': 'log',
-                                        'tickvals': [1, 10, 100, 1000],
-                                        'ticktext': ['1', '10', '100', '1000']})
-    
+                                 yaxis={'type': 'log'
+                                        })
+    g_bar.update_yaxes(dtick=1)
     return g_bar
 
 
