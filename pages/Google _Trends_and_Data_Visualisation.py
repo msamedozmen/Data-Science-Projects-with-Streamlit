@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+
 st.set_page_config(page_title="Google Play Store App Analyse",layout="wide")
 
 pd.options.display.float_format = '{:,.2f}'.format
@@ -81,7 +82,6 @@ class TSLA:
             spine.set_edgecolor("white")  
 
 @st.cache_resource
-
 class BTC:
     def __init__(self) :
         self.df_price = pd.read_csv('Daily Bitcoin Price.csv')
@@ -147,14 +147,16 @@ class Unemployment:
     def plot_graph(self,df):
         self.df = df
         roll_df = self.df[['UE_BENEFITS_WEB_SEARCH', 'UNRATE']].rolling(window=3).mean()
-        self.fig = plt.figure(figsize=(14,8),dpi=120,facecolor="black",edgecolor="black")
-        self.ax1 = plt.gca()
-        self.fig.set_edgecolor("black")
+        self.fig = plt.figure(figsize=(14,8),dpi=120)
         self.fig.gca().set_facecolor("black")
         self.fig.patch.set_facecolor("black")
+        
+        self.ax1 = plt.gca()
+        self.ax1.grid(False)
         self.ax1.set_title("Monthly Search of 'Unemployment Benefits' in the U.S. vs the U/E Rate",fontsize =18,color="white")
         
         self.ax2 = self.ax1.twinx()
+        self.ax2.grid(False)
 
         self.ax1.set_xlim([self.df.MONTH.min(), self.df.MONTH.max()])
         self.ax1.set_ylim(0,roll_df.UE_BENEFITS_WEB_SEARCH.max())
@@ -162,6 +164,7 @@ class Unemployment:
         self.ax1.tick_params(axis='x', rotation=45, colors="white")  
         self.ax1.tick_params(axis='y', colors="white")  
         self.ax2.tick_params(axis="y",colors = "white")
+        
         self.ax1.set_ylabel("FRED U/E Rate", color="orange")
         self.ax2.set_ylabel("Search Trend", color="skyblue")
         
@@ -172,8 +175,8 @@ class Unemployment:
         self.ax1.plot(self.df.MONTH,roll_df.UNRATE, color="orange",linewidth=3, linestyle='--', label = " FRED U/E Rate")
         self.ax2.plot(self.df.MONTH, roll_df.UE_BENEFITS_WEB_SEARCH, color='skyblue', linewidth=3, marker='o',label= "Search Trend" )
         
-        self.ax1.legend(loc="upper left")
-        self.ax2.legend(loc="upper right")
+        self.ax1.legend(loc="upper left",facecolor="white")
+        self.ax2.legend(loc="upper right",facecolor="white")
         for spine in self.ax1.spines.values():
             spine.set_edgecolor("white")
             
@@ -186,10 +189,8 @@ class Unemployment:
 tesla = TSLA()
 btc = BTC()
 unemp = Unemployment()
+col1, col2= st.columns(2)
 
-tab1,tab2,tab3,tab4,tab5 = st.tabs(["TESLA Stock Price vs Search Trend ", "BTC Price","BTC Search", "Unemployment Benefits 2019", "Unemployment Benefits 2020"])
-scnd_tab1,scnd_tab2,scnd_tab3,scnd_tab4 = st.tabs(["TESLA Stock Price vs Search Trend ", "BTC Price vs BTC Search", "Unemployment Benefits 2019", "Unemployment Benefits 2020"])
-col1, col2= st.columns(2,gap="small")
 
 
 try :
@@ -210,28 +211,82 @@ try :
     df_unp20.MONTH = df_unp20.MONTH.dt.date
 except:
     pass
+# scnd_tab1,scnd_tab2,scnd_tab3,scnd_tab4,scnd_tab5 = st.tabs(["TESLA Stock Price vs Search Trend ", "BTC Price vs BTC Search","BTC Price vs BTC Search", "Unemployment Benefits 2019", "Unemployment Benefits 2020"])
 
-with col1:
-    with tab1:
-        st.dataframe(tesla.df,use_container_width=True)
-    with tab2:
-        st.dataframe(btc.df_price,use_container_width=True)
-    with tab3:
-        st.dataframe(btc.df_search,use_container_width=True)
-    with tab4:
-        st.dataframe(unemp.df_19,use_container_width=True)
+# with col1:
+#     with scnd_tab1:
+#         st.pyplot(tesla.fig, use_container_width=True)
+#     with scnd_tab2:
+#         st.pyplot(btc.fig, use_container_width=True)
+#     with scnd_tab3:
+#         st.pyplot(btc.fig, use_container_width=True)
 
-    with tab5:
-        st.dataframe(unemp.df_20,use_container_width=True)
+#     with scnd_tab4:
+#         unemp.plot_graph(unemp.df_19)
+#         st.pyplot(unemp.fig, use_container_width=True)
+#     with scnd_tab5:
+#         unemp.plot_graph(unemp.df_20)
+#         st.pyplot(unemp.fig, use_container_width=True)
 
-with col2:
-    with scnd_tab1:
+# tab1,tab2,tab3,tab4,tab5 = st.tabs(["TESLA Stock Price vs Search Trend ", "BTC Price","BTC Search", "Unemployment Benefits 2019", "Unemployment Benefits 2020"])
+
+
+# with col2:
+#     with tab1:
+#         st.dataframe(tesla.df,use_container_width=True)
+#     with tab2:
+#         st.dataframe(btc.df_price,use_container_width=True)
+#     with tab3:
+#         st.dataframe(btc.df_search,use_container_width=True)
+#     with tab4:
+#         st.dataframe(unemp.df_19,use_container_width=True)
+
+#     with tab5:
+#         st.dataframe(unemp.df_20,use_container_width=True)
+
+
+
+
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Tesla", "BTC Price", "BTC Search", "Unemp 2019", "Unemp 2020"])
+
+# Tesla Tab
+with tab1:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.dataframe(tesla.df, use_container_width=True)
+    with col2:
         st.pyplot(tesla.fig, use_container_width=True)
-    with scnd_tab2:
+
+# BTC Price Tab
+with tab2:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.dataframe(btc.df_price, use_container_width=True)
+    with col2:
         st.pyplot(btc.fig, use_container_width=True)
-    with scnd_tab3:
+
+# BTC Search Tab
+with tab3:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.dataframe(btc.df_search, use_container_width=True)
+    with col2:
+        st.pyplot(btc.fig, use_container_width=True)
+
+# Unemp 2019 Tab
+with tab4:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.dataframe(unemp.df_19.reset_index(drop=True,inplace=False), use_container_width=True)
+    with col2:
         unemp.plot_graph(unemp.df_19)
         st.pyplot(unemp.fig, use_container_width=True)
-    with scnd_tab4:
+
+# Unemp 2020 Tab
+with tab5:
+    col1, col2 = st.columns(2,gap="medium")
+    with col1:
+        st.dataframe(unemp.df_20, use_container_width=True)
+    with col2:
         unemp.plot_graph(unemp.df_20)
         st.pyplot(unemp.fig, use_container_width=True)
